@@ -2,7 +2,7 @@
 AviUtl2上で計算ができるプラグイン
 
 # インストール
-`aviutl2_calc.aux2` を　`C:\ProgramData\aviutl2\Plugin` に配置してください。
+`aviutl2_calc.aux2` を `C:\ProgramData\aviutl2\Plugin` に配置してください。
 
 # ビルド方法
 
