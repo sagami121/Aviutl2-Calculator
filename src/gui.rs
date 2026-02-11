@@ -57,6 +57,10 @@ impl CalcApp {
     }
 
     fn set_operator(&mut self, op: &str) {
+        if self.operator.is_some() && !self.waiting_for_next {
+            self.calculate_internal();
+        }
+
         let current: f64 = self.display.parse().unwrap_or(0.0);
         self.last_val = current;
         self.operator = Some(op.to_string());
@@ -65,6 +69,18 @@ impl CalcApp {
     }
 
     fn calculate(&mut self) {
+        if let Some(op) = self.operator.clone() {
+            let current: f64 = self.display.parse().unwrap_or(0.0);
+            let prev_val = self.last_val; 
+
+            self.calculate_internal();
+
+            self.equation = format!("{} {} {} =", prev_val, op, current);
+            self.operator = None;
+        }
+    }
+
+    fn calculate_internal(&mut self) {
         if let Some(ref op) = self.operator {
             let current: f64 = self.display.parse().unwrap_or(0.0);
             let result = match op.as_str() {
@@ -74,9 +90,9 @@ impl CalcApp {
                 "÷" => if current != 0.0 { self.last_val / current } else { 0.0 },
                 _ => current,
             };
-            self.equation = format!("{} {} {} =", self.last_val, op, current);
+            
             self.display = result.to_string();
-            self.operator = None;
+            self.last_val = result;
             self.waiting_for_next = true;
         }
     }
@@ -101,7 +117,6 @@ impl eframe::App for CalcApp {
 
                 let btn_size = egui::vec2(62.0, 52.0);
                 egui::Grid::new("calc_grid").spacing(egui::vec2(3.0, 3.0)).show(ui, |ui| {
-
                     if self.calc_button(ui, btn_size, "%", 18.0).clicked() {
                         if let Ok(val) = self.display.parse::<f64>() { self.display = (val / 100.0).to_string(); }
                     }
@@ -111,15 +126,14 @@ impl eframe::App for CalcApp {
                     }
                     
                     let bs_btn = if let Some(ref icon) = self.backspace_icon {
-                        
                         ui.add_sized(btn_size, egui::Button::image(egui::Image::new(icon).max_size(egui::vec2(22.0, 22.0))))
                     } else {
                         self.calc_button(ui, btn_size, "←", 18.0)
                     };
                     if bs_btn.clicked() {
-                        if !self.display.is_empty() && self.display != "0" {
+                        if !self.waiting_for_next && !self.display.is_empty() && self.display != "0" {
                             self.display.pop();
-                            if self.display.is_empty() { self.display = "0".to_string(); }
+                            if self.display.is_empty() || self.display == "-" { self.display = "0".to_string(); }
                         }
                     }
                     ui.end_row();
@@ -139,11 +153,13 @@ impl eframe::App for CalcApp {
                         if let Ok(val) = self.display.parse::<f64>() { self.display = (-val).to_string(); }
                     }
                     if self.calc_button(ui, btn_size, "0", 20.0).clicked() { self.add_digit("0"); }
-                    if self.calc_button(ui, btn_size, ".", 20.0).clicked() { if !self.display.contains('.') { self.display.push('.'); } }
+                    if self.calc_button(ui, btn_size, ".", 20.0).clicked() { 
+                        if self.waiting_for_next { self.display = "0.".to_string(); self.waiting_for_next = false; }
+                        else if !self.display.contains('.') { self.display.push('.'); } 
+                    }
                     if self.calc_button(ui, btn_size, "+", 24.0).clicked() { self.set_operator("+"); }
                     ui.end_row();
 
-                    
                     ui.label(""); ui.label(""); ui.label("");
                     let accent = ctx.style().visuals.selection.bg_fill;
                     if ui.add_sized(btn_size, egui::Button::new(egui::RichText::new("=").size(26.0)).fill(accent)).clicked() {

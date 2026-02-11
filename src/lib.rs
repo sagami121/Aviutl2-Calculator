@@ -15,7 +15,7 @@ impl GenericPlugin for CalcPlugin {
     }
 
     fn register(&mut self, host: &mut HostAppHandle) {
-        host.set_plugin_information("Rust製電卓プラグイン v0.1");
+        host.set_plugin_information("Rust製電卓プラグイン v0.2");
 
         let name = "電卓";
         let eframe_window = EframeWindow::new(name, |cc, handle| {
