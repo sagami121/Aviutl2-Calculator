@@ -1,5 +1,5 @@
 # Aviutl2-Calculator
-AviUtl2で電卓を表示するプラグイン
+AviUtl2上で計算ができるプラグイン
 
 # インストール
 `aviutl2_calc.aux2` を　`C:\ProgramData\aviutl2\Plugin` に配置してください。
