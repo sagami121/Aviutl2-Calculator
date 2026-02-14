@@ -19,3 +19,6 @@ AviUtl2上で計算ができるプラグイン
 
 # クレジット
 ・aviutl2-rs　https://github.com/sevenc-nanashi/aviutl2-rs/
+
+# ライセンス
+MIT license
